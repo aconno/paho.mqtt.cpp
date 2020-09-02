@@ -66,8 +66,17 @@ void string_collection::update_c_arr()
 {
 	cArr_.clear();
 	cArr_.reserve(coll_.size());
-	for (const auto& s : coll_)
-		cArr_.push_back(s.c_str());
+	for (const auto& s : coll_) {
+        /*
+         * Create a char array on the heap because the underlying library
+         * tries to free it later and that doesn't work if we use s.c_str()
+         */
+	    char* s_copy = new char[s.length() + 1];
+	    // Copy s.c_str() into s_copy
+	    std::copy(s.c_str(), s.c_str() + s.length() + 1, s_copy);
+	    // Push back the resulting char* onto the vector
+        cArr_.push_back(s_copy);
+    }
 }
 
 string_collection& string_collection::operator=(const string_collection& coll)
